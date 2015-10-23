@@ -1,5 +1,9 @@
 #ifndef ROBOT_H
 #define ROBOT_H
+
+#include <math.h>
+#include <stdlib.h>
+
 #define motion_error_std .007
 
 class robot

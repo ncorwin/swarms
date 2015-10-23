@@ -1,7 +1,13 @@
 
+#if defined(_WIN32) || defined(_WIN64)
 #include <Windows.h>
-#include <GL\glew.h>
-#include <GL\freeglut.h>
+#else
+#include <unistd.h>
+#define Sleep(ms) (usleep(1000 * (ms)))
+#endif
+
+#include <GL/glew.h>
+#include <GL/freeglut.h>
 #include <iostream>
 #include <time.h>
 #include "robot.h"
