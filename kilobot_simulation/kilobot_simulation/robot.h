@@ -32,6 +32,7 @@ public:
 	void controller_timestep_gradient();
 	void controller_orbit();
 	void controller_move_straight();
+	void controller_brazil_nut();
 
 	//flag set to 1 when robot wants to transmitt
 	int tx_request;
@@ -41,6 +42,8 @@ public:
 	int id;
 	int hop;
 	int previous_distance;
+	int previous_command;
+	int previous_light;
 
 	//communication data struct
 	struct communcation_data {

@@ -16,8 +16,8 @@ using namespace std;
 #define delay 20 //delay between time steps, use if program is too fast
 #define  windowWidth 500 //display window
 #define  windowHeight 500 //display window
-#define comm_range 100 //communication range between robots
-#define num_robots 2 //number of robots running
+#define comm_range 1000 //communication range between robots
+#define num_robots 11 //number of robots running
 #define comm_noise_std 5 //standard dev. of sensor noise
 #define PI 3.14159265358979324
 #define radius 20 //radius of a robot
@@ -97,9 +97,10 @@ void drawScene(void)
 		//run controller this time step with p_control_execute probability
 		if ((rand())<(int)(p_control_execute*RAND_MAX))
 		{
-			//robots[i].controller_timestep_gradient();
-			robots[i].controller_orbit();
+		    //robots[i].controller_timestep_gradient();
+			//robots[i].controller_orbit();
 			//robots[i].controller_move_straight();
+		    robots[i].controller_brazil_nut();
 		}
 
 	}
@@ -317,6 +318,19 @@ void OnIdle(void) {
 	glutPostRedisplay();
 }
 
+//setup for brazil nut algorithim, make sure num_robots is 11
+void setup_brazil_nut()
+{
+	int k = 0;
+	for (int i = 0;i < 10;i++)
+	{
+		robots[k].init(200 + 45 * i, 200 + 45 * i, 10 * rand() / RAND_MAX);
+		k++;
+	}
+
+	robots[10].init(150, 150, 10 * rand() / RAND_MAX);
+}
+
 //setup function for orbit behavior, make sure num_robots is 2
 void setup_positions_orbit()
 {
@@ -359,7 +373,8 @@ int main(int argc, char **argv)
 
 	//place robots
 	//setup_positions_gradient();
-	setup_positions_orbit();
+	//setup_positions_orbit();
+	setup_brazil_nut();
 
 	//do some open gl stuff
 

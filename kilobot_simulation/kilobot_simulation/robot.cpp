@@ -5,8 +5,99 @@ void robot::controller_move_straight()
 {
 
 	motor_command = 1;
-	color[0] = 1;
+	color[0] = 2;
 }
+//Swarms Project Controller Brazil Nut Algorithim
+void robot::controller_brazil_nut()
+{
+	data_out.id = id;//send out my id
+
+	//if i received a message
+	if (incoming_message_flag == 1)
+	{
+		//clear the message rx flag
+		incoming_message_flag = 0;
+
+
+		//if message is from "light"
+		if ((data_in.id) == 000)
+		{
+			//choose motor command based on distance and past distance value
+			if (previous_light<data_in.distance)
+			{
+			  //choose motor cmmand based on last attempted motor command
+				if (previous_command == 1)
+				{
+					motor_command = 2;
+					color[0] = 0;
+					color[1] = 1;
+					color[2] = 0;
+				}
+				else
+				{
+					color[0] = 0;
+					color[1] = 0;
+					color[2] = 1;
+					motor_command = 3;
+				}
+			}
+			else
+			{
+			    color[0] = 1;
+				color[1] = 0;
+				color[2] = 0;
+				motor_command = 1;
+			}
+			previous_light = data_in.distance;
+			previous_command = motor_command;
+		}
+		
+		else
+		{
+		    if (data_in.distance < 55)
+		    {
+			    //choose motor command based on distance and past distance value
+			    if (previous_distance<data_in.distance)
+				{
+			        //choose motor cmmand based on last attempted motor command
+				    if (previous_command == 1)
+					{
+					    motor_command = 2;
+						color[0] = 0;
+						color[1] = 1;
+						color[2] = 0;
+					}
+					else
+					{
+					    color[0] = 0;
+						color[1] = 0;
+						color[2] = 1;
+						motor_command = 3;
+					}
+				}
+				else
+				{
+			        color[0] = 1;
+					color[1] = 0;
+					color[2] = 0;
+					motor_command = 1;
+				}
+			}
+			previous_distance = data_in.distance;
+			previous_command = motor_command;
+		}
+		
+   	}
+
+	//timer to controll how frequently i tx
+	if ((timer % 10) == 0)
+	{
+		tx_request = 1;
+
+	}
+	timer++;
+}
+
 //example controller that has one robot orbit the other
 void robot::controller_orbit()
 {
@@ -180,7 +271,11 @@ void robot::init(int x, int y, int t)
 	if ((x == 200) && (y == 200))
 		hop = 0;
 
-
+	if ((x == 150) && (y == 150))
+	    id = 000;
+	    color[0] = 1;
+		color[1] = 1;
+		color[2] = 1;
 
 }
 
