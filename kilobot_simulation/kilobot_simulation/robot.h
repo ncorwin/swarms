@@ -3,6 +3,7 @@
 
 #include <math.h>
 #include <stdlib.h>
+#include <vector>
 
 #define motion_error_std .007
 
@@ -42,8 +43,20 @@ public:
 	int id;
 	int hop;
 	int previous_distance;
+
+    //brazil nut variables
 	int previous_command;
 	int previous_light;
+    int index;
+    int a_radius;
+	int test;
+	int i;
+  
+    //vectors
+    std::vector<int> neighbor_id (10);
+    std::vector<int> neighbor_distance (10);
+    std::vector<int> last_command (10);
+	std::vector<int>::iterator it;
 
 	//communication data struct
 	struct communcation_data {

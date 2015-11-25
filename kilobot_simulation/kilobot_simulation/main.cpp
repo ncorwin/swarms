@@ -11,6 +11,7 @@
 #include <iostream>
 #include <time.h>
 #include "robot.h"
+#include <vector>
 using namespace std;
 
 #define delay 20 //delay between time steps, use if program is too fast
@@ -328,7 +329,7 @@ void setup_brazil_nut()
 		k++;
 	}
 
-	robots[10].init(150, 150, 10 * rand() / RAND_MAX);
+	//robots[10].init(150, 150, 10 * rand() / RAND_MAX);
 }
 
 //setup function for orbit behavior, make sure num_robots is 2
@@ -339,7 +340,6 @@ void setup_positions_orbit()
 	{
 		robots[k].init(200 + 45 * i, 200 + 45 * i, 10 * rand() / RAND_MAX);
 		k++;
-
 	}
 }
 
