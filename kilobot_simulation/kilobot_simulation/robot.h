@@ -16,6 +16,9 @@ public:
 					 
 	double color[3]; //robot color output, values 0-1
 
+	//Light sensor
+	int light;
+
 	//robot commanded motion 1=forward, 2=cw rotation, 3=ccw rotation, 4=stop
 	int motor_command;
 
@@ -34,12 +37,15 @@ public:
 	void controller_orbit();
 	void controller_move_straight();
 	void controller_brazil_nut();
+	void controller_brazil_nut_test();
+	void controller_light_follow();
 
 	//flag set to 1 when robot wants to transmitt
 	int tx_request;
 
 	//flag set to 1 when new message received
 	int incoming_message_flag;
+
 	int id;
 	int hop;
 	int previous_distance;
@@ -47,16 +53,19 @@ public:
     //brazil nut variables
 	int previous_command;
 	int previous_light;
+
     int index;
     int a_radius;
 	int test;
 	int i;
-  
+
     //vectors
-    std::vector<int> neighbor_id (10);
-    std::vector<int> neighbor_distance (10);
-    std::vector<int> last_command (10);
+	/*
+    std::vector<int> neighbor_id;
+    std::vector<int> neighbor_distance;
+    std::vector<int> last_command;
 	std::vector<int>::iterator it;
+	*/
 
 	//communication data struct
 	struct communcation_data {

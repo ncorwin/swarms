@@ -2,14 +2,191 @@
 #include "robot.h"
 #include <vector>
 
+//vectors
+std::vector<int> neighbor_id(10);
+std::vector<int> neighbor_distance(10);
+std::vector<int>::iterator it;
+
+
 void robot::controller_move_straight()
 {
 
 	motor_command = 1;
-	color[0] = 2;
+
+	color[0] = 1;
+	color[1] = 0;
+	color[2] = 0;
+
+	if (light < 700)
+	  {
+		color[0] = 0;
+		color[1] = 1;
+		color[2] = 0;
+	  }
+	
 }
+//test of following light
+void robot::controller_light_follow()
+{
+    color[0] = 1;
+	color[1] = 1;
+	color[2] = 1;
+
+	//light following
+	if (light < 100)
+	{
+	    motor_command = 1;
+	}
+	else
+	{
+	    motor_command = 2;
+	  /*
+	    if (previous_light > light)
+		{
+		    if (motor_command == 2)
+			{
+			    motor_command = 3;
+			}
+		    else
+			{
+			    motor_command = 2;
+			}
+		}
+		else
+		{
+		    motor_command = 2;
+		}
+		//*/
+	}
+	
+	previous_light = light;
+
+	if (light < 900 && light > 800)
+	{
+		color[0] = 1;
+		color[1] = 1;
+		color[2] = 0;
+	}
+	else if (light < 800 && light > 700)
+	{
+		color[0] = 0;
+		color[1] = 1;
+		color[2] = 1;
+	}
+	else if (light < 700 && light > 600)
+	{
+		color[0] = 1;
+		color[1] = 0;
+		color[2] = 1;
+	}
+	else if (light < 600 && light > 500)
+	{
+		color[0] = 0;
+		color[1] = 1;
+		color[2] = 0;
+	}
+	else if (light < 500 && light > 400)
+	{
+		color[0] = 0;
+		color[1] = 0;
+		color[2] = 1;
+	}
+	else if (light < 100)
+	{
+		color[0] = 1;
+		color[1] = 0;
+		color[2] = 0;
+	}
+	else
+	{
+		color[0] = 0;
+		color[1] = 0;
+		color[2] = 0;
+	}
+
+	//timer to controll how frequently i tx
+	if ((timer % 10) == 0)
+	{
+		tx_request = 1;
+		
+	}
+	timer++;
+	
+}
+
 //Swarms Project Controller Brazil Nut Algorithim
 void robot::controller_brazil_nut()
+{
+    //set artificial radius
+	if (id < 50)
+	{
+	   	a_radius = 80;
+	    color[0] = 1;
+		color[1] = 0;
+		color[2] = 0;
+	}
+	else
+	{
+	    a_radius = 40;
+	    color[0] = 0;
+		color[1] = 0;
+		color[2] = 1;
+	}
+
+	//light following
+	if (previous_light > light)
+	{
+	    if (motor_command == 3)
+     	{
+		    motor_command = 2;
+		}
+		else
+		{
+		    motor_command = 3;
+		}
+	}
+	else
+	{
+	    motor_command = 1;
+	}
+	previous_light = light;
+	
+	//neighbor avoidance
+	data_out.id = id;//send out my id
+
+					 //if i received a message
+	if (incoming_message_flag == 1)
+	{
+		//clear the message rx flag
+		incoming_message_flag = 0;
+
+		//compare current distance to radius
+		if (data_in.distance < a_radius)
+		{
+		    if (motor_command == 2)
+			{
+			    motor_command = 3;
+			}
+		    else
+			{
+			    motor_command = 2;
+			}
+		}
+
+	}
+
+	//timer to controll how frequently i tx
+	if ((timer % 10) == 0)
+	{
+		tx_request = 1;
+		
+	}
+	timer++;
+	
+}
+
+//Test function using vectors
+void robot::controller_brazil_nut_test()
 {
 	data_out.id = id;//send out my id
 
@@ -23,7 +200,7 @@ void robot::controller_brazil_nut()
 		i = 0;
 
 		//chech incoming id against list
-		
+		/*
 		for (i = 0;i < neighbor_id.size();i++)
 		{
 		    if (neighbor_id.at(i) == data_in.id)
@@ -33,7 +210,7 @@ void robot::controller_brazil_nut()
 				it = neighbor_id.begin() + i;
 		    }
 		}
-		
+		*/
 		//if id not in list, append to list with current distance and 1 for motor control
 		if (test == 0)
 		{
@@ -82,7 +259,7 @@ void robot::controller_brazil_nut()
 			}
 			else
 			{
-			    if (last_command.at(index) == 1)
+			    if (previous_command == 1)
 			    {
 				    color[0] = 0;
 					color[1] = 1;
@@ -97,7 +274,7 @@ void robot::controller_brazil_nut()
 					motor_command = 3;
 				}
 			}
-		    last_command.insert ( it, motor_command);
+		    previous_command = motor_command;
 		}
 		neighbor_distance.insert ( it, data_in.distance);
 	}
@@ -251,12 +428,7 @@ void robot::controller_timestep_gradient()
 	{
 		tx_request = 1;
 
-
-
 	}
-
-
-
 
 	timer++;
 
@@ -279,14 +451,12 @@ void robot::init(int x, int y, int t)
 	rand();
 	motor_error = gaussrand()*motion_error_std;
 
-	a_radius = 50;
-	
 	//set the robot at this position to be the seed of the gradient/hop count
 	if ((x == 200) && (y == 200))
 		hop = 0;
 
 	if ((x == 150) && (y == 150))
-	    id = 000;
+	    motor_command = 0;
 	    color[0] = 1;
 		color[1] = 1;
 		color[2] = 1;

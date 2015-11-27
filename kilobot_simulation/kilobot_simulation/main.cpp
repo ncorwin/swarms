@@ -17,13 +17,15 @@ using namespace std;
 #define delay 20 //delay between time steps, use if program is too fast
 #define  windowWidth 500 //display window
 #define  windowHeight 500 //display window
-#define comm_range 1000 //communication range between robots
-#define num_robots 11 //number of robots running
+#define comm_range 75 //communication range between robots
+#define num_robots 100 //number of robots running
 #define comm_noise_std 5 //standard dev. of sensor noise
 #define PI 3.14159265358979324
 #define radius 20 //radius of a robot
 #define p_control_execute .99 // probability of a controller executing its time step
-
+#define light_source_x 50
+#define light_source_y 50
+#define light_source_intensity 900 //0-1023
 
 // Global vars.
 double time_sim;  //simulation time
@@ -31,6 +33,34 @@ float zoom, view_x, view_y; //var. for zoom and scroll
 
 
 robot robots[num_robots];//creates an array of robots
+
+double distance(int x1, int y1, int x2, int y2)
+{
+    double x = x1 - x2;
+	double y = y1 - y2;
+	double s = pow(x, 2) + pow(y, 2);
+	return sqrt(s);
+}
+double find_theta(int x1, int y1, int x2, int y2)
+{
+    if (x1 == x2) return 0;
+	double x = x2 - x1;
+	double y = y2 - y1;
+
+	if (x >=0 && y >= 0)
+	{
+	    return atan(y/x);
+	}
+	if (x < 0 && y < 0)
+	{
+	    return atan(y/x) + PI;
+	}
+	if (x < 0 && y > 0)
+	{
+	    return atan(abs(x) / y) + PI / 2;
+	}
+	return atan(x / abs(y)) + PI/2*3;
+}
 
 						 //generates a gaussian random variable, used for noise
 double gaussrand()
@@ -101,7 +131,9 @@ void drawScene(void)
 		    //robots[i].controller_timestep_gradient();
 			//robots[i].controller_orbit();
 			//robots[i].controller_move_straight();
-		    robots[i].controller_brazil_nut();
+		    //robots[i].controller_brazil_nut();
+		    //robots[i].controller_brazil_nut_test();
+		    robots[i].controller_light_follow();
 		}
 
 	}
@@ -225,6 +257,21 @@ void drawScene(void)
 
 	}
 
+    //light sensing
+	for (i = 0;i < num_robots;i++)
+	{
+	    double d = distance(robots[i].pos[0], robots[i].pos[1], light_source_x, light_source_y);
+		double t = find_theta(robots[i].pos[0], robots[i].pos[1], light_source_x, light_source_y);
+		
+        robots[i].light = light_source_intensity - d/2;
+		
+		robots[i].light = robots[i].light < 110 ? 110 : robots[i].light;
+		if (abs(t - robots[i].pos[3]) < .3)
+		{
+		  robots[i].light = robots[i].light * .1;
+		}
+	}
+
 	//draw robots
 	int triangleAmount = 300;
 	GLfloat twicePi = 2.0f * PI;
@@ -319,17 +366,22 @@ void OnIdle(void) {
 	glutPostRedisplay();
 }
 
-//setup for brazil nut algorithim, make sure num_robots is 11
+//setup for brazil nut algorithim, make sure num_robots is 10
 void setup_brazil_nut()
 {
 	int k = 0;
-	for (int i = 0;i < 10;i++)
+	for (int i = 0;i < 10; i++)
 	{
-		robots[k].init(200 + 45 * i, 200 + 45 * i, 10 * rand() / RAND_MAX);
-		k++;
+	    for (int j = 0;j < 10;j++)
+		{
+			robots[k].init(100 + 100 * i, 100 + 100 * j, 10 * rand() / RAND_MAX);
+			robots[k].id = k;
+			k++;
+		}
+		
 	}
 
-	//robots[10].init(150, 150, 10 * rand() / RAND_MAX);
+	//robots[11].init(150,150,10 * rand() / RAND_MAX);
 }
 
 //setup function for orbit behavior, make sure num_robots is 2
@@ -357,6 +409,17 @@ void setup_positions_gradient()
 	}
 }
 
+//setup for light following, num_robots = 2
+void setup_light_follow()
+{
+	int k = 0;
+	for (int i = 0;i < 2;i++)
+	{
+		robots[k].init(200 + 45 * i, 200 + 45 * i, 10 * rand() / RAND_MAX);
+		k++;
+	}
+}
+
 // Main routine.
 int main(int argc, char **argv)
 {
@@ -374,7 +437,8 @@ int main(int argc, char **argv)
 	//place robots
 	//setup_positions_gradient();
 	//setup_positions_orbit();
-	setup_brazil_nut();
+	//setup_brazil_nut();
+	setup_light_follow();
 
 	//do some open gl stuff
 
@@ -394,3 +458,5 @@ int main(int argc, char **argv)
 
 	return 0;
 }
+
+
