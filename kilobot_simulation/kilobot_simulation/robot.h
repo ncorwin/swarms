@@ -54,6 +54,8 @@ public:
 	int previous_command;
 	int previous_light;
 
+	int a;
+	int b;
     int index;
     int a_radius;
 	int test;

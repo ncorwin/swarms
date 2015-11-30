@@ -40,8 +40,8 @@ void robot::controller_light_follow()
 	else
 	{
 	    motor_command = 2;
-	  /*
-	    if (previous_light > light)
+	  //*
+	    if (previous_light < light)
 		{
 		    if (motor_command == 2)
 			{
@@ -118,37 +118,59 @@ void robot::controller_light_follow()
 void robot::controller_brazil_nut()
 {
     //set artificial radius
-	if (id < 50)
+    a = 25;
+	b = 4;
+
+	if (id < 25)
 	{
-	   	a_radius = 80;
+	   	a_radius = a*b;
 	    color[0] = 1;
 		color[1] = 0;
 		color[2] = 0;
 	}
-	else
+	/*
+	else if (id < 75)
 	{
-	    a_radius = 40;
+	   	a_radius = a*b*2;
 	    color[0] = 0;
 		color[1] = 0;
 		color[2] = 1;
 	}
+	//*/
+	else
+	{
+	    a_radius = a;
+	    color[0] = 0;
+		color[1] = 1;
+		color[2] = 0;
+	}
 
 	//light following
-	if (previous_light > light)
-	{
-	    if (motor_command == 3)
-     	{
-		    motor_command = 2;
-		}
-		else
-		{
-		    motor_command = 3;
-		}
-	}
-	else
+	if (light < 100)
 	{
 	    motor_command = 1;
 	}
+	else
+	{
+	    motor_command = 2;
+
+	    if (previous_light < light)
+		{
+		    if (motor_command == 2)
+			{
+			    motor_command = 3;
+			}
+		    else
+			{
+			    motor_command = 2;
+			}
+		}
+		else
+		{
+		  //motor_command = 2;
+		}
+	}
+	
 	previous_light = light;
 	
 	//neighbor avoidance
@@ -163,13 +185,17 @@ void robot::controller_brazil_nut()
 		//compare current distance to radius
 		if (data_in.distance < a_radius)
 		{
-		    if (motor_command == 2)
+		    if (motor_command == 1)
+			{
+			    motor_command = 2;
+			}
+		    else if (motor_command == 2)
 			{
 			    motor_command = 3;
 			}
-		    else
+			else 
 			{
-			    motor_command = 2;
+			    motor_command = 1;
 			}
 		}
 

@@ -15,16 +15,16 @@
 using namespace std;
 
 #define delay 20 //delay between time steps, use if program is too fast
-#define  windowWidth 500 //display window
-#define  windowHeight 500 //display window
-#define comm_range 75 //communication range between robots
-#define num_robots 100 //number of robots running
+#define  windowWidth 750 //display window
+#define  windowHeight 750 //display window
+#define comm_range 200 //communication range between robots
+#define num_robots 49 //number of robots running
 #define comm_noise_std 5 //standard dev. of sensor noise
 #define PI 3.14159265358979324
 #define radius 20 //radius of a robot
 #define p_control_execute .99 // probability of a controller executing its time step
-#define light_source_x 50
-#define light_source_y 50
+#define light_source_x 700
+#define light_source_y 700
 #define light_source_intensity 900 //0-1023
 
 // Global vars.
@@ -114,7 +114,8 @@ int find_collisions(int id, double x, double y)
 // Drawing routine.
 void drawScene(void)
 {
-
+    glColor4f(0,0,0,0);
+    glRectd(light_source_x-100,light_source_y-100,light_source_x+100,light_source_y+100);
 
 	int i, j;
 
@@ -131,9 +132,9 @@ void drawScene(void)
 		    //robots[i].controller_timestep_gradient();
 			//robots[i].controller_orbit();
 			//robots[i].controller_move_straight();
-		    //robots[i].controller_brazil_nut();
+		    robots[i].controller_brazil_nut();
 		    //robots[i].controller_brazil_nut_test();
-		    robots[i].controller_light_follow();
+		    //robots[i].controller_light_follow();
 		}
 
 	}
@@ -263,13 +264,15 @@ void drawScene(void)
 	    double d = distance(robots[i].pos[0], robots[i].pos[1], light_source_x, light_source_y);
 		double t = find_theta(robots[i].pos[0], robots[i].pos[1], light_source_x, light_source_y);
 		
-        robots[i].light = light_source_intensity - d/2;
+        robots[i].light = light_source_intensity - d/2 + gaussrand()/2;
 		
-		robots[i].light = robots[i].light < 110 ? 110 : robots[i].light;
+		robots[i].light = robots[i].light < 20 ? 20 : robots[i].light;
+		///*
 		if (abs(t - robots[i].pos[3]) < .3)
 		{
 		  robots[i].light = robots[i].light * .1;
 		}
+		//*/
 	}
 
 	//draw robots
@@ -366,15 +369,15 @@ void OnIdle(void) {
 	glutPostRedisplay();
 }
 
-//setup for brazil nut algorithim, make sure num_robots is 10
+//setup for brazil nut algorithim
 void setup_brazil_nut()
 {
 	int k = 0;
-	for (int i = 0;i < 10; i++)
+	for (int i = 0;i < 7; i++)
 	{
-	    for (int j = 0;j < 10;j++)
+	    for (int j = 0;j < 7;j++)
 		{
-			robots[k].init(100 + 100 * i, 100 + 100 * j, 10 * rand() / RAND_MAX);
+			robots[k].init(200 * i, 200 * j, 10 * rand() / RAND_MAX);
 			robots[k].id = k;
 			k++;
 		}
@@ -393,6 +396,7 @@ void setup_positions_orbit()
 		robots[k].init(200 + 45 * i, 200 + 45 * i, 10 * rand() / RAND_MAX);
 		k++;
 	}
+	
 }
 
 //setup for gradient fuction, needs num_robots to be 100
@@ -409,7 +413,7 @@ void setup_positions_gradient()
 	}
 }
 
-//setup for light following, num_robots = 2
+//setup for light following, 
 void setup_light_follow()
 {
 	int k = 0;
@@ -418,6 +422,7 @@ void setup_light_follow()
 		robots[k].init(200 + 45 * i, 200 + 45 * i, 10 * rand() / RAND_MAX);
 		k++;
 	}
+	robots[3].init(light_source_x, light_source_y, 0);
 }
 
 // Main routine.
@@ -430,15 +435,15 @@ int main(int argc, char **argv)
 	time_sim = 0;
 
 	//inital zoom and scroll positions
-	zoom = 700;
-	view_x = 500;
-	view_y = 500;
+	zoom = 2000;
+	view_x = 1500;
+	view_y = 1500;
 
 	//place robots
 	//setup_positions_gradient();
 	//setup_positions_orbit();
-	//setup_brazil_nut();
-	setup_light_follow();
+	setup_brazil_nut();
+	//setup_light_follow();
 
 	//do some open gl stuff
 
