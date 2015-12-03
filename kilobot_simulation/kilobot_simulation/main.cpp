@@ -18,14 +18,14 @@ using namespace std;
 #define  windowWidth 750 //display window
 #define  windowHeight 750 //display window
 #define comm_range 200 //communication range between robots
-#define num_robots 49 //number of robots running
+#define num_robots 100 //number of robots running
 #define comm_noise_std 5 //standard dev. of sensor noise
 #define PI 3.14159265358979324
 #define radius 20 //radius of a robot
 #define p_control_execute .99 // probability of a controller executing its time step
-#define light_source_x 700
-#define light_source_y 700
-#define light_source_intensity 900 //0-1023
+#define light_source_x 600
+#define light_source_y 600
+#define light_source_intensity 1000 //0-1023
 
 // Global vars.
 double time_sim;  //simulation time
@@ -47,6 +47,7 @@ double find_theta(int x1, int y1, int x2, int y2)
 	double x = x2 - x1;
 	double y = y2 - y1;
 
+	///*
 	if (x >=0 && y >= 0)
 	{
 	    return atan(y/x);
@@ -60,6 +61,7 @@ double find_theta(int x1, int y1, int x2, int y2)
 	    return atan(abs(x) / y) + PI / 2;
 	}
 	return atan(x / abs(y)) + PI/2*3;
+	//*/
 }
 
 						 //generates a gaussian random variable, used for noise
@@ -115,7 +117,7 @@ int find_collisions(int id, double x, double y)
 void drawScene(void)
 {
     glColor4f(0,0,0,0);
-    glRectd(light_source_x-100,light_source_y-100,light_source_x+100,light_source_y+100);
+    glRectd(light_source_x-50,light_source_y-50,light_source_x+50,light_source_y+50);
 
 	int i, j;
 
@@ -133,7 +135,7 @@ void drawScene(void)
 			//robots[i].controller_orbit();
 			//robots[i].controller_move_straight();
 		    robots[i].controller_brazil_nut();
-		    //robots[i].controller_brazil_nut_test();
+		    //robots[i].controller_test();
 		    //robots[i].controller_light_follow();
 		}
 
@@ -218,17 +220,19 @@ void drawScene(void)
 			double temp_theta = rotation_step + robots[order[i]].pos[2];
 			double temp_x = forward_motion_step*cos(temp_theta) + robots[order[i]].pos[0];
 			double temp_y = forward_motion_step*sin(temp_theta) + robots[order[i]].pos[1];
+			if(temp_theta > 2*PI)
+			{
+			    temp_theta = temp_theta - 2*PI;
+			}
+			robots[order[i]].pos[2] = temp_theta;
+			
+
 			if (find_collisions(order[i], temp_x, temp_y) == 0)
 			{
-				robots[order[i]].pos[2] = temp_theta;
+				
 				robots[order[i]].pos[0] = temp_x;
 				robots[order[i]].pos[1] = temp_y;
 			}
-			else
-			{
-				robots[order[i]].pos[2] = temp_theta;
-			}
-
 
 		}
 		else if (robots[order[i]].motor_command == 3)//turn ccw
@@ -268,7 +272,7 @@ void drawScene(void)
 		
 		robots[i].light = robots[i].light < 20 ? 20 : robots[i].light;
 		///*
-		if (abs(t - robots[i].pos[3]) < .3)
+		if (abs(t - robots[i].pos[2] ) < 1)
 		{
 		  robots[i].light = robots[i].light * .1;
 		}
@@ -373,9 +377,9 @@ void OnIdle(void) {
 void setup_brazil_nut()
 {
 	int k = 0;
-	for (int i = 0;i < 7; i++)
+	for (int i = 0;i < 10; i++)
 	{
-	    for (int j = 0;j < 7;j++)
+	    for (int j = 0;j < 10;j++)
 		{
 			robots[k].init(200 * i, 200 * j, 10 * rand() / RAND_MAX);
 			robots[k].id = k;

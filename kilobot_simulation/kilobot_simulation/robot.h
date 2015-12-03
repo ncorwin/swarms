@@ -37,7 +37,7 @@ public:
 	void controller_orbit();
 	void controller_move_straight();
 	void controller_brazil_nut();
-	void controller_brazil_nut_test();
+	void controller_test();
 	void controller_light_follow();
 
 	//flag set to 1 when robot wants to transmitt
@@ -53,6 +53,7 @@ public:
     //brazil nut variables
 	int previous_command;
 	int previous_light;
+	int target_timer;
 
 	int a;
 	int b;

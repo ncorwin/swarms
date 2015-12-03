@@ -28,9 +28,30 @@ void robot::controller_move_straight()
 //test of following light
 void robot::controller_light_follow()
 {
-    color[0] = 1;
-	color[1] = 1;
-	color[2] = 1;
+    if(motor_command == 1)
+	{
+		color[0] = 1;
+		color[1] = 0;
+		color[2] = 0;
+	}
+	else if(motor_command == 2)
+	{
+		color[0] = 0;
+		color[1] = 0;
+		color[2] = 2;
+	}
+	else if(motor_command == 3)
+	{
+		color[0] = 0;
+		color[1] = 1;
+		color[2] = 0;
+	}
+	else 
+	{
+	    color[0] = 1;
+		color[1] = 1;
+		color[2] = 1;
+	}
 
 	//light following
 	if (light < 100)
@@ -39,10 +60,51 @@ void robot::controller_light_follow()
 	}
 	else
 	{
-	    motor_command = 2;
-	  //*
+	  motor_command = 2;//1500
+	  /* lost
+	    if (previous_command == 2)
+		{
+		    motor_command = 3;
+		}
+		else
+		{
+		    motor_command = 2;
+		}
+	  */
+	  /* lost
+	  if ((timer % 10) == 0)
+	  {
+		  motor_command = 2;
+	  }
+	  else
+	  {
+		  motor_command = 3;
+	  }
+	  */
+	  /* lost
+	    if (target_timer < timer)
+		{
+		    target_timer = timer;
+		}
+
+		if(target_timer == timer)
+		{
+		    if ((timer % 10) == 0)
+			{
+				motor_command = 2;
+			}
+		    else
+			{
+				motor_command = 3;
+			}
+			target_timer = timer + 10;
+		}
+		*/
+	  /* 1700-1900
+	  //motor_command = 2;
 	    if (previous_light < light)
 		{
+		    
 		    if (motor_command == 2)
 			{
 			    motor_command = 3;
@@ -56,11 +118,11 @@ void robot::controller_light_follow()
 		{
 		    motor_command = 2;
 		}
-		//*/
+		*/
 	}
-	
+	previous_command = motor_command;
 	previous_light = light;
-
+	/*
 	if (light < 900 && light > 800)
 	{
 		color[0] = 1;
@@ -103,7 +165,7 @@ void robot::controller_light_follow()
 		color[1] = 0;
 		color[2] = 0;
 	}
-
+	*/
 	//timer to controll how frequently i tx
 	if ((timer % 10) == 0)
 	{
@@ -118,10 +180,10 @@ void robot::controller_light_follow()
 void robot::controller_brazil_nut()
 {
     //set artificial radius
-    a = 25;
-	b = 4;
+    a = 100;
+	b = 3;
 
-	if (id < 25)
+	if (id % 2 == 0)
 	{
 	   	a_radius = a*b;
 	    color[0] = 1;
@@ -153,26 +215,8 @@ void robot::controller_brazil_nut()
 	else
 	{
 	    motor_command = 2;
-
-	    if (previous_light < light)
-		{
-		    if (motor_command == 2)
-			{
-			    motor_command = 3;
-			}
-		    else
-			{
-			    motor_command = 2;
-			}
-		}
-		else
-		{
-		  //motor_command = 2;
-		}
 	}
-	
-	previous_light = light;
-	
+
 	//neighbor avoidance
 	data_out.id = id;//send out my id
 
@@ -185,24 +229,18 @@ void robot::controller_brazil_nut()
 		//compare current distance to radius
 		if (data_in.distance < a_radius)
 		{
-		    if (motor_command == 1)
-			{
-			    motor_command = 2;
-			}
-		    else if (motor_command == 2)
-			{
-			    motor_command = 3;
-			}
-			else 
-			{
-			    motor_command = 1;
-			}
+		  /*
+		    color[0] = 0;
+			color[1] = 0;
+			color[2] = 1;
+		  */
+		    motor_command = 3;
 		}
 
 	}
 
 	//timer to controll how frequently i tx
-	if ((timer % 10) == 0)
+	if ((timer % 2) == 0)
 	{
 		tx_request = 1;
 		
@@ -211,98 +249,55 @@ void robot::controller_brazil_nut()
 	
 }
 
-//Test function using vectors
-void robot::controller_brazil_nut_test()
+//Test function 
+void robot::controller_test()
 {
-	data_out.id = id;//send out my id
-
-					 //if i received a message
-	if (incoming_message_flag == 1)
+    motor_command = 2;
+	if (light < 900 && light > 800)
 	{
-		//clear the message rx flag
-		incoming_message_flag = 0;
-		
-		test = 0;
-		i = 0;
-
-		//chech incoming id against list
-		/*
-		for (i = 0;i < neighbor_id.size();i++)
-		{
-		    if (neighbor_id.at(i) == data_in.id)
-			{
-			    index = i;
-				test = 1;
-				it = neighbor_id.begin() + i;
-		    }
-		}
-		*/
-		//if id not in list, append to list with current distance and 1 for motor control
-		if (test == 0)
-		{
-		    neighbor_id.push_back (data_in.id);
-			neighbor_distance.push_back (data_in.distance);
-			index = neighbor_id.size();
-			it = neighbor_id.end();
-		}
-		
-		/*
-		test = std::find(neighbor_id.begin(), neighbor_id.end(), data_in.id)
-
-		if(test != neighbor_id.end()) 
-		{
-		    
-		    for (i = 0;i < neighbor_id.size();i++)
-			{
-			    if (neighbor_id.at(i) == data_in.id)
-				{
-				    index = i;
-					test = 1;
-					it = neighbor_id.begin() + i;
-				}
-			}
-		} 
-		else 
-		{
-		    //if id not in list, append to list with current distance and 1 for motor control
-		    neighbor_id.push_back (data_in.id);
-			neighbor_distance.push_back (data_in.distance);
-			index = neighbor_id.size();
-			it = neighbor_id.end();
-		}
-		*/
-
-		//compare current distance to radius
-		if (data_in.distance < a_radius)
-		{
-		    //if d < r, check previous distance
-		  if (data_in.distance > neighbor_distance.at(index))
-			{
-			    motor_command = 1;
-				color[0] = 1;
-				color[1] = 0;
-				color[2] = 0;
-			}
-			else
-			{
-			    if (previous_command == 1)
-			    {
-				    color[0] = 0;
-					color[1] = 1;
-					color[2] = 0;
-					motor_command = 2;
-				}
-				else
-				{
-				    color[0] = 0;
-					color[1] = 0;
-					color[2] = 1;
-					motor_command = 3;
-				}
-			}
-		    previous_command = motor_command;
-		}
-		neighbor_distance.insert ( it, data_in.distance);
+		color[0] = 1;
+		color[1] = 0;
+		color[2] = 1;
+	}
+	else if (light < 800 && light > 700)
+	{
+	  //green
+		color[0] = 0;
+		color[1] = 1;
+		color[2] = 0;
+	}
+	else if (light < 700 && light > 600)
+	{
+	  //blue
+		color[0] = 0;
+		color[1] = 0;
+		color[2] = 1;
+	}
+	else if (light < 600 && light > 500)
+	{
+		color[0] = 1;
+		color[1] = 1;
+		color[2] = 0;
+	}
+	else if (light < 500 && light > 400)
+	{
+		color[0] = 0;
+		color[1] = 1;
+		color[2] = 1;
+	}
+	else if (light < 100)
+	{
+	  //red
+		color[0] = 1;
+		color[1] = 0;
+		color[2] = 0;
+	}
+	else
+	{
+	  //black
+		color[0] = 0;
+		color[1] = 0;
+		color[2] = 0;
 	}
 
 	//timer to controll how frequently i tx
@@ -480,13 +475,13 @@ void robot::init(int x, int y, int t)
 	//set the robot at this position to be the seed of the gradient/hop count
 	if ((x == 200) && (y == 200))
 		hop = 0;
-
+	/*
 	if ((x == 150) && (y == 150))
 	    motor_command = 0;
 	    color[0] = 1;
 		color[1] = 1;
 		color[2] = 1;
-
+	*/
 }
 
 double robot::gaussrand()
