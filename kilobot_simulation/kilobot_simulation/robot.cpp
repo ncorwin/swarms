@@ -238,7 +238,23 @@ void robot::controller_brazil_nut()
 		}
 
 	}
-
+	///*
+	if((timer % 100) == 0)
+	{
+	    if (motor_command == 1)
+		{
+		    motor_command = 2;
+		}
+		else if (motor_command == 2)
+		{
+		    motor_command = 3;
+		}
+		else
+		{
+		    motor_command = 1;
+		}
+	}
+	//*/
 	//timer to controll how frequently i tx
 	if ((timer % 2) == 0)
 	{

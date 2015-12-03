@@ -381,7 +381,7 @@ void setup_brazil_nut()
 	{
 	    for (int j = 0;j < 10;j++)
 		{
-			robots[k].init(200 * i, 200 * j, 10 * rand() / RAND_MAX);
+		  robots[k].init(200 * i, 200 * j, 10 * rand() / RAND_MAX);
 			robots[k].id = k;
 			k++;
 		}
